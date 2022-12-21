@@ -1,53 +1,39 @@
-import { Component } from 'react';
+import { useEffect, useState } from "react";
 
 import Section from './Section/Section';
 import Contacts from './Contacts/Contacts';
 import FormAddContact from './FormAddContact/FormAddContact';
 import FilterContact from './FilterContact/FilterContact';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+export const App = () => {
+  const [contacts, setContacts] = useState(() => JSON.parse(localStorage.getItem('contactsList')) || [])
+  const [filter, setFilter] = useState("")
 
-  componentDidMount() {
-    const contactsList = JSON.parse(localStorage.getItem('contactsList'));
-    if (contactsList) {
-      this.setState({ contacts: contactsList });
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState, snapsshot) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contactsList', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  addContact = contact => {
-    if (this.state.contacts.find(elem => elem.name === contact.name)) {
+  const addContact = contact => {
+    if (contacts.find(elem => elem.name === contact.name)) {
       alert('You have this contacts');
       return;
     }
-    this.setState(prevState => {
-      return { contacts: [...prevState.contacts, contact] };
-    });
-  };
+    setContacts(prevContacts => [...prevContacts, contact]);
+};
 
-  removeContact = event => {
+  const removeContact = event => {
     const idContactToRemove = event.target.attributes.id.nodeValue;
-    const arrayContacts = this.state.contacts.filter(
+    const arrayContacts = contacts.filter(
       elem => elem.id !== idContactToRemove
     );
-    this.setState({ contacts: arrayContacts });
-  };
+    setContacts(arrayContacts);
+};
 
-  findContactsByName = event =>
-    this.setState({ filter: event.target.value.trim().toLowerCase() });
+ const findContactsByName = event =>
+    setFilter(event.target.value.trim().toLowerCase());
+ 
+  useEffect(() => {
+    localStorage.setItem("contactsList", JSON.stringify(contacts));
+  }, [contacts]); // render-1 -> uE | render-2 -> uE | render-3 -> uE
 
-  render() {
-    const contactToFind = this.state.contacts.filter(elem =>
-      elem.name.toLowerCase().includes(this.state.filter)
+    const contactToFind = contacts.filter(elem =>
+      elem.name.toLowerCase().includes(filter)
     );
     return (
       <div
@@ -60,19 +46,19 @@ export class App extends Component {
         }}
       >
         <Section title={'Phonebook'}>
-          <FormAddContact addContactOnSubmit={this.addContact} />
+          <FormAddContact addContactOnSubmit={addContact} />
         </Section>
         <Section title={'Contacts'}>
           <FilterContact
-            findContactsByName={this.findContactsByName}
-            filters={this.state.filter}
+            findContactsByName={findContactsByName}
+            filters={filter}
           />
           <Contacts
             contacts={contactToFind}
-            removeContacts={this.removeContact}
+            removeContacts={removeContact}
           />
         </Section>
       </div>
     );
   }
-}
+
