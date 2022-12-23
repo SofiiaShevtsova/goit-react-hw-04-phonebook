@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import Section from './Section/Section';
 import Contacts from './Contacts/Contacts';
@@ -32,11 +32,11 @@ export const App = () => {
 
   useEffect(() => {
     localStorage.setItem('contactsList', JSON.stringify(contacts));
-  }, [contacts]); // render-1 -> uE | render-2 -> uE | render-3 -> uE
+  }, [contacts]); 
 
-  const contactToFind = contacts.filter(elem =>
+  const contactToFind = useMemo(()=> contacts.filter(elem =>
     elem.name.toLowerCase().includes(filter)
-  );
+  ), [filter, contacts]) ;
   return (
     <div
       style={{
