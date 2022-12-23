@@ -1,11 +1,13 @@
 import PropTypes from 'prop-types';
+import { useContext } from 'react';
+import { ContextContacts } from 'components/App';
 
 import StyleList from '../ComponentStyles/PhonebookStyles';
 
 const { ListOfContactsStyle, BtnDeleteContact, IsEmptyList } = StyleList;
 
 const Contacts = props => {
-  const { contacts, removeContacts } = props;
+  const { contacts } = props;
   return contacts.length > 0 ? (
     <ListOfContactsStyle>
       {contacts.map(elem => (
@@ -14,7 +16,6 @@ const Contacts = props => {
           number={elem.number}
           id={elem.id}
           key={elem.id}
-          removeContacts={removeContacts}
         />
       ))}
     </ListOfContactsStyle>
@@ -36,15 +37,16 @@ Contacts.propTypes = {
       PropTypes.array
     ),
   ]),
-  removeContacts: PropTypes.func.isRequired,
 };
 
 const Contact = props => {
-  const { name, number, removeContacts, id } = props;
+  const removeContact = useContext(ContextContacts);
+
+  const { name, number, id } = props;
   return (
     <li>
       {name}: <span>{number}</span>
-      <BtnDeleteContact type="button" id={id} onClick={removeContacts}>
+      <BtnDeleteContact type="button" id={id} onClick={removeContact}>
         Delete
       </BtnDeleteContact>
     </li>
@@ -52,17 +54,9 @@ const Contact = props => {
 };
 
 Contact.propTypes = {
-  contacts: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        number: PropTypes.string.isRequired,
-        id: PropTypes.string.isRequired,
-      }),
-      PropTypes.array
-    ),
-  ]),
-  removeContacts: PropTypes.func.isRequired,
+  name: PropTypes.string.isRequired,
+  number: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 export default Contacts;
